@@ -1,45 +1,35 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager  # To automatically install ChromeDriver
 import time
 
-# URL of Apple's stock price
+# URL to scrape
 url = "https://investor.apple.com/stock-price/default.aspx"
 
-# Set up headers to make the request look like it's from a browser
-headers = {
-    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
-}
+# Set up options for headless mode (optional)
+options = Options()
+options.headless = False  # Change to True to run the browser in the background
 
-# Use a session object
-session = requests.Session()
-session.headers.update(headers)
+# Set up the WebDriver (using Chrome in this example)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 try:
-    # Fetch the webpage content with headers
-    response = session.get(url)
-    response.raise_for_status()  # Check if the request was successful
+    # Open the page
+    driver.get(url)
 
-    # Parse the page content
-    soup = BeautifulSoup(response.content, 'html.parser')
+    # Wait for the page to load (you can adjust this if needed)
+    time.sleep(5)  # Sleep for 5 seconds, or use WebDriverWait for better synchronization
 
-    # Find the stock price in the page
-    stock_price_section = soup.find('div', class_='investor-relations-stock-price')
+    # Find the stock price element (you might need to inspect the page to get the right CSS selector)
+    stock_price_section = driver.find_element(By.CSS_SELECTOR, '.investor-relations-stock-price')
 
-    if stock_price_section:
-        # Extract the current stock price and date
-        price = stock_price_section.find('span', class_='quote-price')
-        date = stock_price_section.find('span', class_='quote-date')
+    # Extract the stock price and date
+    price = stock_price_section.find_element(By.CSS_SELECTOR, '.quote-price')
+    date = stock_price_section.find_element(By.CSS_SELECTOR, '.quote-date')
 
-        if price and date:
-            print(f"Apple Stock Price: {price.text.strip()}")
-            print(f"Last Updated: {date.text.strip()}")
-        else:
-            print("Error: Could not find stock price data on the page")
-    else:
-        print("Error: Could not find the stock price section on the page")
+    # Print the extracted data
+    print(f"Apple Stock Price:
 
-except requests.RequestException as e:
-    print(f"Error fetching data: {e}")
-except Exception as e:
-    print(f"An unexpected error occurred: {e}")
 
