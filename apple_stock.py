@@ -38,4 +38,16 @@ try:
                 date = cols[0].text.strip()
                 close_price = cols[4].text.strip()  # Close price is in the 5th column (index 4)
 
-                # Print the formatted
+                # Print the formatted result
+                print(f"{date:<12} {close_price:<15}")
+
+            # Add a small delay to avoid triggering the "Too Many Requests" error
+            time.sleep(1)  # Wait for 1 second before sending the next request
+
+    else:
+        print("Error: Could not find the historical data table on the page")
+
+except requests.RequestException as e:
+    print(f"Error fetching data: {e}")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
