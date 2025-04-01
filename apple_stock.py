@@ -1,5 +1,6 @@
 import requests
 from bs4 import BeautifulSoup
+import time
 
 # URL of Apple's stock price
 url = "https://investor.apple.com/stock-price/default.aspx"
@@ -9,9 +10,13 @@ headers = {
     "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36"
 }
 
+# Use a session object
+session = requests.Session()
+session.headers.update(headers)
+
 try:
     # Fetch the webpage content with headers
-    response = requests.get(url, headers=headers)
+    response = session.get(url)
     response.raise_for_status()  # Check if the request was successful
 
     # Parse the page content
@@ -37,3 +42,4 @@ except requests.RequestException as e:
     print(f"Error fetching data: {e}")
 except Exception as e:
     print(f"An unexpected error occurred: {e}")
+
