@@ -6,7 +6,7 @@ from webdriver_manager.chrome import ChromeDriverManager  # To automatically ins
 import time
 
 # URL to scrape
-url = "https://investor.apple.com/stock-price/default.aspx"
+url = "https://finance.yahoo.com/quote/AAPL/history?p=AAPL"
 
 # Set up options for headless mode (optional)
 options = Options()
@@ -19,20 +19,22 @@ try:
     # Open the page
     driver.get(url)
 
-    # Wait for the page to load (you can adjust this if needed)
+    # Wait for the page to load (adjust the wait time as needed)
     time.sleep(5)  # Sleep for 5 seconds, or use WebDriverWait for better synchronization
 
-    # Find the stock price element (you might need to inspect the page to get the right CSS selector)
-    stock_price_section = driver.find_element(By.CSS_SELECTOR, '.investor-relations-stock-price')
+    # Locate the table containing historical data (ensure you inspect the correct table)
+    rows = driver.find_elements(By.CSS_SELECTOR, 'table[data-test="historical-prices"] tbody tr')
 
-    # Extract the stock price and date
-    price = stock_price_section.find_element(By.CSS_SELECTOR, '.quote-price')
-    date = stock_price_section.find_element(By.CSS_SELECTOR, '.quote-date')
-
-    # Print the extracted data
-    print(f"Apple Stock Price: {price.text.strip()}")
-    print(f"Last Updated: {date.text.strip()}")
-
+    # Iterate through the rows and extract the date and closing price
+    for row in rows:
+        try:
+            # Extract the date and closing price from each row
+            date = row.find_element(By.CSS_SELECTOR, 'td[data-test="date"] span').text
+            close_price = row.find_element(By.CSS_SELECTOR, 'td[data-test="close"] span').text
+            print(f"Date: {date}, Close Price: {close_price}")
+        except Exception as e:
+            print(f"Error extracting data from row: {e}")
+    
 except Exception as e:
     print(f"Error fetching data: {e}")
 
