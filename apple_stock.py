@@ -1,9 +1,8 @@
 import requests
 from bs4 import BeautifulSoup
-import time
 
-# URL of the Apple stock historical data
-url = "https://finance.yahoo.com/quote/AAPL/history?p=AAPL"
+# URL of Apple's stock price
+url = "https://investor.apple.com/stock-price/default.aspx"
 
 # Set up headers to make the request look like it's from a browser
 headers = {
@@ -18,34 +17,21 @@ try:
     # Parse the page content
     soup = BeautifulSoup(response.content, 'html.parser')
 
-    # Find the historical data table
-    table = soup.find('table', {'data-test': 'historical-data-table'})
+    # Find the stock price in the page
+    stock_price_section = soup.find('div', class_='investor-relations-stock-price')
 
-    if table:
-        # Extract all rows from the table
-        rows = table.find_all('tr')[1:]  # Skip the header row
+    if stock_price_section:
+        # Extract the current stock price and date
+        price = stock_price_section.find('span', class_='quote-price')
+        date = stock_price_section.find('span', class_='quote-date')
 
-        # Print the header
-        print(f"{'Date':<12} {'Close Price':<15}")
-        print("=" * 30)
-
-        # Iterate through each row
-        for row in rows:
-            cols = row.find_all('td')
-
-            # Ensure the row has the expected columns
-            if len(cols) > 0:
-                date = cols[0].text.strip()
-                close_price = cols[4].text.strip()  # Close price is in the 5th column (index 4)
-
-                # Print the formatted result
-                print(f"{date:<12} {close_price:<15}")
-
-            # Add a small delay to avoid triggering the "Too Many Requests" error
-            time.sleep(1)  # Wait for 1 second before sending the next request
-
+        if price and date:
+            print(f"Apple Stock Price: {price.text.strip()}")
+            print(f"Last Updated: {date.text.strip()}")
+        else:
+            print("Error: Could not find stock price data on the page")
     else:
-        print("Error: Could not find the historical data table on the page")
+        print("Error: Could not find the stock price section on the page")
 
 except requests.RequestException as e:
     print(f"Error fetching data: {e}")
