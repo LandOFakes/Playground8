@@ -1,44 +1,46 @@
 import requests
 from bs4 import BeautifulSoup
 
-# URL of the CBS NFL Stats webpage for touchdowns
-url = "https://www.cbssports.com/nfl/stats/leaders/live/touchdowns/regular/"
+# URL of the Wikipedia page
+url = "https://en.wikipedia.org/wiki/List_of_NFL_annual_passing_touchdowns_leaders"
 
 try:
-  
+    
     response = requests.get(url)
-    response.raise_for_status() 
+    response.raise_for_status()  
 
     
     soup = BeautifulSoup(response.content, 'html.parser')
 
    
-    table = soup.find('table')
+    table = soup.find('table', {'class': 'wikitable'})
 
     if table:
-        
-        rows = table.find_all('tr')[1:21]  
-        if len(rows) == 0:
-            print("No player data found!")
-        else:
-            print(f"{'Player':<25} {'Position':<10} {'Team':<10} {'Touchdowns':<5}")
-            print("=" * 60)
+       
+        rows = table.find_all('tr')
 
+        
+        print(f"{'Year':<6} {'Player':<25} {'Team':<20} {'TDs':<5}")
+        print("=" * 60)
+
+        
+        for row in rows[1:]:  
+            cols = row.find_all('td')
             
-            for row in rows:
-                cols = row.find_all('td')
+            
+            if len(cols) >= 4:
+                year = cols[0].text.strip()
+                player = cols[1].text.strip()
+                team = cols[2].text.strip()
+                touchdowns = cols[3].text.strip()
                 
                 
-                if len(cols) >= 4:
-                    player = cols[0].text.strip()
-                    position = cols[1].text.strip()
-                    team = cols[2].text.strip()
-                    touchdowns = cols[3].text.strip()
-                    print(f"{player:<25} {position:<10} {team:<10} {touchdowns:<5}")
-                else:
-                    print("Warning: Row data is incomplete or not in expected format")
+                print(f"{year:<6} {player:<25} {team:<20} {touchdowns:<5}")
+            else:
+                print("Warning: Incomplete row data or unexpected format")
+
     else:
-        print("Error: Stats table not found on the page")
+        print("Error: Could not find the statistics table on the page")
 
 except requests.RequestException as e:
     print(f"Error fetching data: {e}")
