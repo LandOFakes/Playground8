@@ -30,6 +30,14 @@ try:
     date = stock_price_section.find_element(By.CSS_SELECTOR, '.quote-date')
 
     # Print the extracted data
-    print(f"Apple Stock Price:
+    print(f"Apple Stock Price: {price.text.strip()}")
+    print(f"Last Updated: {date.text.strip()}")
+
+except Exception as e:
+    print(f"Error fetching data: {e}")
+
+finally:
+    # Close the driver
+    driver.quit()
 
 
